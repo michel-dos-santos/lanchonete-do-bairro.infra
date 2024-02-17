@@ -71,7 +71,7 @@ Resources:
       ResourcesVpcConfig:
         SecurityGroupIds:
           - !ImportValue SecurityGroups
-        SubnetIds: !Split [ ',', !ImportValue SubnetIds ]
+        SubnetIds: !Split [ ',', !ImportValue PublicSubnetIds ]
 
   EksNodegroup:
     Type: AWS::EKS::Nodegroup
@@ -86,4 +86,4 @@ Resources:
           Ref: NumberOfWorkerNodes
         MaxSize:
           Ref: NumberOfWorkerNodes
-      Subnets: !Split [ ',', !ImportValue SubnetIds ]
+      Subnets: !Split [ ',', !ImportValue PublicSubnetIds ]

@@ -5,7 +5,7 @@ metadata:
   labels:
     app: services-deployment
   annotations:
-    description: "Este pod contem os serviços utilizados pela aplicação DB e N8N (Mock flow payment order)"
+    description: "Este pod contem os serviços utilizados pela aplicação N8N (Mock flow payment order)"
 spec:
   replicas: 1
   selector:
@@ -55,26 +55,6 @@ spec:
             - name: shared
               mountPath: /root/.n8n
               subPath: n8n
-        - name: postgres-db
-          image: postgres
-          ports:
-            - containerPort: 5432
-              protocol: TCP
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: secrets-app
-                  key: POSTGRES_PASSWORD
-          livenessProbe:
-            exec:
-              command: [ "psql", "-U", "postgres", "-d", "postgres", "-c", "SELECT 1" ]
-            initialDelaySeconds: 15
-            timeoutSeconds: 2
-          volumeMounts:
-            - name: shared
-              mountPath: /var/lib/postgresql/data
-              subPath: postgres
       volumes:
         - name: shared
           persistentVolumeClaim:

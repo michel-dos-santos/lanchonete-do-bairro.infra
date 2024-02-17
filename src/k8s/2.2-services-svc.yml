@@ -9,11 +9,6 @@ spec:
   selector:
     app: services-deployment
   ports:
-    - name: db
-      protocol: TCP
-      port: 5432
-      targetPort: 5432
-      nodePort: 31432
     - name: n8n
       protocol: TCP
       port: 5678
