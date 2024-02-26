@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adapter-rest-deployment
+  labels:
+    app: adapter-rest-deployment
+  annotations:
+    description: "Este pod contem o adapter rest da aplicacao, onde expoe as APIs da lanchonete do bairro"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adapter-rest-deployment
+  template:
+    metadata:
+      labels:
+        app: adapter-rest-deployment
+    spec:
+      containers:
+        - name: adapter-rest
+          image: micheldossantos/adapter-rest-fast-food:latest
+          ports:
+            - containerPort: 8081
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 0.5
+            limits:
+              cpu: 1
+          env:
+            - name: PROFILE
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-app
+                  key: PROFILE
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-app
+                  key: DB_URL
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-app
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-app
+                  key: DB_PASSWORD
+            - name: MERCADO_PAGO_URL
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-app
+                  key: MERCADO_PAGO_URL
+            - name: ITAU_URL
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-app
+                  key: ITAU_URL
+            - name: AWS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-app
+                  key: AWS_ACCESS_KEY
+            - name: AWS_ACCESS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-app
+                  key: AWS_ACCESS_SECRET
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-app
+                  key: AWS_REGION
+            - name: AWS_COGNITO_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-app
+                  key: AWS_COGNITO_CLIENT_ID
+            - name: AWS_COGNITO_USER_POOL_ID
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-app
+                  key: AWS_COGNITO_USER_POOL_ID
+          livenessProbe:
+            httpGet:
+              path: /api/actuator/health
+              port: 8081
+            initialDelaySeconds: 20
+            periodSeconds: 30
