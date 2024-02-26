@@ -28,15 +28,15 @@ Resources:
     Properties:
       UserPoolId: !Ref UserPool
       ClientName: !Sub ${CognitoDomain}.api
-      GenerateSecret: true
-      CallbackURLs:
-        - http://localhost:3000
-      ExplicitAuthFlows:
-        - ALLOW_USER_SRP_AUTH
-        - ALLOW_USER_PASSWORD_AUTH
-        - ALLOW_REFRESH_TOKEN_AUTH
+      GenerateSecret: false
       SupportedIdentityProviders:
         - COGNITO
+      ExplicitAuthFlows:
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_CUSTOM_AUTH
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
 
   UserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
@@ -45,9 +45,21 @@ Resources:
       UserPoolId: !Ref UserPool
 
 Outputs:
+  CognitoUserPoolARN:
+    Value:
+      Fn::GetAtt: UserPool.Arn
+    Description: The UserPool ARN
+    Export:
+      Name: CognitoUserPoolARN
+
   CognitoUserPoolID:
     Value: !Ref UserPool
     Description: The UserPool ID
+    Export:
+      Name: CognitoUserPoolID
+
   CognitoAppClientID:
     Value: !Ref UserPoolClient
     Description: The app client
+    Export:
+      Name: CognitoAppClientID

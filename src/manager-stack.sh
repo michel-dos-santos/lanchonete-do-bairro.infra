@@ -1,11 +1,12 @@
 PS3="O que deseja fazer com a sua stack: "
 
-items=("Criar Stack" "Excluir Stack" "Criar Cognito" "Excluir Cognito")
+items=("Criar Stack" "Excluir Stack" "Criar Cognito" "Excluir Cognito" "Criar API Gateway" "Excluir API Gateway")
 
 echo ">>>>> Obtendo definição dos atributos interno do script <<<<<"
 AWS_REGION=us-east-1
 EKS_STACK_NAME=lanchonete-do-bairro-eks-cluster
 COGNITO_STACK_NAME=lanchonete-do-bairro-cognito
+API_GATEWAY_STACK_NAME=lanchonete-do-bairro-api-gateway
 AWS_ARN_ACCOUNT=$(aws sts get-caller-identity --query "Account" --output text)
 wait
 
@@ -29,6 +30,16 @@ function createCOGNITO {
     --template-body file://cognito-stack.yaml
 
   verifyStatus $COGNITO_STACK_NAME
+  wait
+}
+
+function createAPIGATEWAY {
+  aws cloudformation create-stack \
+    --region $AWS_REGION \
+    --stack-name $API_GATEWAY_STACK_NAME \
+    --template-body file://api-gateway-stack.yaml
+
+  verifyStatus $API_GATEWAY_STACK_NAME
   wait
 }
 
@@ -101,6 +112,8 @@ do
         2) deleteStacks;;
         3) createCOGNITO;;
         4) deleteStack $COGNITO_STACK_NAME;;
+        5) createAPIGATEWAY;;
+        6) deleteStack $API_GATEWAY_STACK_NAME;;
         $((${#items[@]}+1))) echo "We're done!"; break;;
         *) echo "Ooops - unknown choice $REPLY";;
     esac
