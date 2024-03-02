@@ -31,57 +31,57 @@ spec:
             - name: PROFILE
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: fixed-secrets
                   key: PROFILE
             - name: DB_URL
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: dynamic-secrets
                   key: DB_URL
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: dynamic-secrets
                   key: DB_USER
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: dynamic-secrets
                   key: DB_PASSWORD
             - name: MERCADO_PAGO_URL
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: fixed-secrets
                   key: MERCADO_PAGO_URL
             - name: ITAU_URL
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: fixed-secrets
                   key: ITAU_URL
             - name: AWS_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: dynamic-secrets
                   key: AWS_ACCESS_KEY
             - name: AWS_ACCESS_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: dynamic-secrets
                   key: AWS_ACCESS_SECRET
             - name: AWS_REGION
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: dynamic-secrets
                   key: AWS_REGION
             - name: AWS_COGNITO_CLIENT_ID
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: dynamic-secrets
                   key: AWS_COGNITO_CLIENT_ID
             - name: AWS_COGNITO_USER_POOL_ID
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: dynamic-secrets
                   key: AWS_COGNITO_USER_POOL_ID
           livenessProbe:
             httpGet:

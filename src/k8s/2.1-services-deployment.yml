@@ -28,22 +28,22 @@ spec:
             - name: N8N_PORT
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: fixed-secrets
                   key: N8N_PORT
             - name: N8N_PROTOCOL
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: fixed-secrets
                   key: N8N_PROTOCOL
             - name: NODE_ENV
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: fixed-secrets
                   key: NODE_ENV
             - name: GENERIC_TIMEZONE
               valueFrom:
                 secretKeyRef:
-                  name: secrets-app
+                  name: fixed-secrets
                   key: GENERIC_TIMEZONE
           livenessProbe:
             httpGet:
