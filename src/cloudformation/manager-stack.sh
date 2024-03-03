@@ -132,16 +132,16 @@ function createStacks {
 }
 
 function deleteStacks {
-  echo "Deleting :" $VPC_STACK_NAME
-  deleteStack $VPC_STACK_NAME
   echo "Deleting :" $DB_STACK_NAME
   deleteStack $DB_STACK_NAME
-  echo "Deleting :" $COGNITO_STACK_NAME
-  deleteStack $COGNITO_STACK_NAME
   echo "Deleting :" $API_GATEWAY_STACK_NAME
   deleteStack $API_GATEWAY_STACK_NAME
+  echo "Deleting :" $COGNITO_STACK_NAME
+  deleteStack $COGNITO_STACK_NAME
   echo "Deleting :" $EKS_STACK_NAME
   deleteStack $EKS_STACK_NAME
+  echo "Deleting :" $VPC_STACK_NAME
+  deleteStack $VPC_STACK_NAME
   deleteKubeCtlConfig
 }
 
