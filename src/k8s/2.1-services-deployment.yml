@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: services-deployment
+  labels:
+    app: services-deployment
+  annotations:
+    description: "Este pod contem os serviços utilizados pela aplicação N8N (Mock flow payment order)"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: services-deployment
+  template:
+    metadata:
+      labels:
+        app: services-deployment
+    spec:
+      securityContext:
+        runAsUser: 0
+      containers:
+        - name: n8n
+          image: docker.n8n.io/n8nio/n8n
+          ports:
+            - containerPort: 5678
+              protocol: TCP
+          env:
+            - name: N8N_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: fixed-secrets
+                  key: N8N_PORT
+            - name: N8N_PROTOCOL
+              valueFrom:
+                secretKeyRef:
+                  name: fixed-secrets
+                  key: N8N_PROTOCOL
+            - name: NODE_ENV
+              valueFrom:
+                secretKeyRef:
+                  name: fixed-secrets
+                  key: NODE_ENV
+            - name: GENERIC_TIMEZONE
+              valueFrom:
+                secretKeyRef:
+                  name: fixed-secrets
+                  key: GENERIC_TIMEZONE
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 5678
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          volumeMounts:
+            - name: shared
+              mountPath: /root/.n8n
+              subPath: n8n
+      volumes:
+        - name: shared
+          persistentVolumeClaim:
+            claimName: services-pvc

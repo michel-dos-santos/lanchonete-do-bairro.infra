@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: adapter-consumer-billing-svc-load-balancer
+  labels:
+    app: adapter-consumer-billing-svc-load-balancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: adapter-consumer-billing-deployment
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8082
+      nodePort: 31082

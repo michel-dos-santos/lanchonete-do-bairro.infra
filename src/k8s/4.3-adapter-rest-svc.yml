@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: adapter-rest-svc-load-balancer
+  labels:
+    app: adapter-rest-svc-load-balancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: adapter-rest-deployment
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8081
+      nodePort: 31081

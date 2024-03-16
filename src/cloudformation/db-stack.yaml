@@ -1,0 +1,56 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Amazon RDS PostgreSQL 15.2'
+
+Parameters:
+  DBUsername:
+    NoEcho: 'true'
+    Description: Username for PostgreSQL database access
+    Type: String
+    MinLength: '1'
+    MaxLength: '16'
+    Default: "postgres"
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+  DBPassword:
+    NoEcho: 'true'
+    Description: Password for PostgreSQL database access
+    Type: String
+    MinLength: '8'
+    MaxLength: '41'
+    Default: "postgres"
+    AllowedPattern: '[a-zA-Z0-9]*'
+    ConstraintDescription: must contain only alphanumeric characters.
+  DBName:
+    Description: Name for PostgreSQL database
+    Type: String
+    Default: "postgres"
+Resources:
+  RDSSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: "RDS database's group"
+      SubnetIds: !Split [ ',', !ImportValue PublicSubnetIds ]
+
+  RDSDBInstance1:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      DBInstanceIdentifier: lanchonete-do-bairro-postgresql-instance1
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      DBName: !Ref DBName
+      DBSubnetGroupName: !Ref RDSSubnetGroup
+      Engine: postgres
+      EngineVersion: '15.2'
+      AllocatedStorage: 5
+      PubliclyAccessible: 'true'
+      DBInstanceClass: db.t3.small
+      VPCSecurityGroups:
+        - !ImportValue SecurityGroups
+
+Outputs:
+  RDSInstanceEndpoint:
+    Description: RDS Instance Endpoint
+    Value: !GetAtt 'RDSDBInstance1.Endpoint.Address'
+    Export:
+      Name: RDSInstanceEndpoint
