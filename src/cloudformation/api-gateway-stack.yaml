@@ -7,47 +7,33 @@ Resources:
     Properties:
       Name: lanchonete-do-bairro-api-gateway
 
-  ClientsAPIResource:
+  ProviderAPIResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt RestApiGateway.RootResourceId
       RestApiId: !Ref RestApiGateway
-      PathPart: 'clients'
+      PathPart: 'provider/{proxy+}'
 
-  CategoriesAPIResource:
+  TotemAPIResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt RestApiGateway.RootResourceId
       RestApiId: !Ref RestApiGateway
-      PathPart: 'categories'
+      PathPart: 'totem/{proxy+}'
 
-  ProductsAPIResource:
+  TotemSignInAPIResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt RestApiGateway.RootResourceId
       RestApiId: !Ref RestApiGateway
-      PathPart: 'products'
+      PathPart: 'totem/sign-in'
 
-  OrdersAPIResource:
+  TotemSignUpAPIResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt RestApiGateway.RootResourceId
       RestApiId: !Ref RestApiGateway
-      PathPart: 'orders'
-
-  ConsumerAPIResource:
-    Type: AWS::ApiGateway::Resource
-    Properties:
-      ParentId: !GetAtt RestApiGateway.RootResourceId
-      RestApiId: !Ref RestApiGateway
-      PathPart: 'consumer'
-
-  OthersAPIResource:
-    Type: AWS::ApiGateway::Resource
-    Properties:
-      ParentId: !GetAtt RestApiGateway.RootResourceId
-      RestApiId: !Ref RestApiGateway
-      PathPart: '{proxy+}'
+      PathPart: 'totem/sign-up'
 
   CognitoAuthorizer:
     Type: AWS::ApiGateway::Authorizer
@@ -59,11 +45,11 @@ Resources:
       ProviderARNs:
         - !ImportValue CognitoUserPoolARN
 
-  ClientsAPIResourceMockMethod:
+  TotemSignInAPIResourceMockMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       RestApiId: !Ref RestApiGateway
-      ResourceId: !Ref ClientsAPIResource
+      ResourceId: !Ref TotemSignInAPIResource
       HttpMethod: POST
       AuthorizationType: NONE
       Integration:
@@ -78,15 +64,13 @@ Resources:
           ResponseModels:
             application/json: Empty
 
-  CategoriesAPIResourceMockMethod:
+  TotemSignUpAPIResourceMockMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       RestApiId: !Ref RestApiGateway
-      ResourceId: !Ref CategoriesAPIResource
-      HttpMethod: ANY
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId:
-        Ref: CognitoAuthorizer
+      ResourceId: !Ref TotemSignUpAPIResource
+      HttpMethod: POST
+      AuthorizationType: NONE
       Integration:
         Type: MOCK
         RequestTemplates:
@@ -99,15 +83,13 @@ Resources:
           ResponseModels:
             application/json: Empty
 
-  ProductsAPIResourceMockMethod:
+  ProviderAPIResourceMockMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       RestApiId: !Ref RestApiGateway
-      ResourceId: !Ref ProductsAPIResource
-      HttpMethod: ANY
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId:
-        Ref: CognitoAuthorizer
+      ResourceId: !Ref ProviderAPIResource
+      HttpMethod: POST
+      AuthorizationType: NONE
       Integration:
         Type: MOCK
         RequestTemplates:
@@ -120,55 +102,11 @@ Resources:
           ResponseModels:
             application/json: Empty
 
-
-  OrdersAPIResourceMockMethod:
+  TotemAPIResourceMockMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       RestApiId: !Ref RestApiGateway
-      ResourceId: !Ref OrdersAPIResource
-      HttpMethod: ANY
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId:
-        Ref: CognitoAuthorizer
-      Integration:
-        Type: MOCK
-        RequestTemplates:
-          application/json: '{"statusCode": 200}'
-        IntegrationResponses:
-          - StatusCode: '200'
-        PassthroughBehavior: WHEN_NO_MATCH
-      MethodResponses:
-        - StatusCode: '200'
-          ResponseModels:
-            application/json: Empty
-
-
-  ConsumerAPIResourceMockMethod:
-    Type: 'AWS::ApiGateway::Method'
-    Properties:
-      RestApiId: !Ref RestApiGateway
-      ResourceId: !Ref ConsumerAPIResource
-      HttpMethod: ANY
-      AuthorizationType: COGNITO_USER_POOLS
-      AuthorizerId:
-        Ref: CognitoAuthorizer
-      Integration:
-        Type: MOCK
-        RequestTemplates:
-          application/json: '{"statusCode": 200}'
-        IntegrationResponses:
-          - StatusCode: '200'
-        PassthroughBehavior: WHEN_NO_MATCH
-      MethodResponses:
-        - StatusCode: '200'
-          ResponseModels:
-            application/json: Empty
-
-  OthersAPIResourceMockMethod:
-    Type: 'AWS::ApiGateway::Method'
-    Properties:
-      RestApiId: !Ref RestApiGateway
-      ResourceId: !Ref OthersAPIResource
+      ResourceId: !Ref TotemAPIResource
       HttpMethod: ANY
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId:
@@ -188,12 +126,10 @@ Resources:
   Deployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
-      - ClientsAPIResourceMockMethod
-      - CategoriesAPIResourceMockMethod
-      - ProductsAPIResourceMockMethod
-      - OrdersAPIResourceMockMethod
-      - ConsumerAPIResourceMockMethod
-      - OthersAPIResourceMockMethod
+      - TotemSignInAPIResourceMockMethod
+      - TotemSignUpAPIResourceMockMethod
+      - ProviderAPIResourceMockMethod
+      - TotemAPIResourceMockMethod
     Properties:
       RestApiId: !Ref RestApiGateway
 
