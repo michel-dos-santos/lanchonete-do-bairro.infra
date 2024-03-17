@@ -12,28 +12,28 @@ Resources:
     Properties:
       ParentId: !GetAtt RestApiGateway.RootResourceId
       RestApiId: !Ref RestApiGateway
-      PathPart: 'provider/{proxy+}'
+      PathPart: 'provider'
 
   TotemAPIResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt RestApiGateway.RootResourceId
       RestApiId: !Ref RestApiGateway
-      PathPart: 'totem/{proxy+}'
+      PathPart: 'totem'
 
   TotemSignInAPIResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt RestApiGateway.RootResourceId
       RestApiId: !Ref RestApiGateway
-      PathPart: 'totem/sign-in'
+      PathPart: 'sign-in'
 
   TotemSignUpAPIResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt RestApiGateway.RootResourceId
       RestApiId: !Ref RestApiGateway
-      PathPart: 'totem/sign-up'
+      PathPart: 'sign-up'
 
   CognitoAuthorizer:
     Type: AWS::ApiGateway::Authorizer
@@ -88,7 +88,7 @@ Resources:
     Properties:
       RestApiId: !Ref RestApiGateway
       ResourceId: !Ref ProviderAPIResource
-      HttpMethod: POST
+      HttpMethod: ANY
       AuthorizationType: NONE
       Integration:
         Type: MOCK
