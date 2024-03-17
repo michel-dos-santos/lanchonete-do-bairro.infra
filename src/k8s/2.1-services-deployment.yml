@@ -25,6 +25,8 @@ spec:
             - containerPort: 5678
               protocol: TCP
           env:
+            - name: N8N_SECURE_COOKIE
+              value: "false"
             - name: N8N_PORT
               valueFrom:
                 secretKeyRef:
