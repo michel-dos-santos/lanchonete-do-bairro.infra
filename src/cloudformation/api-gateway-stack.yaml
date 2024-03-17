@@ -14,12 +14,26 @@ Resources:
       RestApiId: !Ref RestApiGateway
       PathPart: 'provider'
 
+  ProviderProxyAPIResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref ProviderAPIResource
+      RestApiId: !Ref RestApiGateway
+      PathPart: '{proxy+}'
+
   TotemAPIResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt RestApiGateway.RootResourceId
       RestApiId: !Ref RestApiGateway
       PathPart: 'totem'
+
+  TotemProxyAPIResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref TotemAPIResource
+      RestApiId: !Ref RestApiGateway
+      PathPart: '{proxy+}'
 
   TotemSignInAPIResource:
     Type: AWS::ApiGateway::Resource
@@ -53,7 +67,9 @@ Resources:
       HttpMethod: POST
       AuthorizationType: NONE
       Integration:
-        Type: MOCK
+        Type: HTTP_PROXY
+        IntegrationHttpMethod: ANY
+        Uri: http://aa7b2f337f86d4a178733171e42972cf-1841160873.us-east-1.elb.amazonaws.com/api/v1/clients/sign-in
         RequestTemplates:
           application/json: '{"statusCode": 200}'
         IntegrationResponses:
@@ -72,7 +88,9 @@ Resources:
       HttpMethod: POST
       AuthorizationType: NONE
       Integration:
-        Type: MOCK
+        Type: HTTP_PROXY
+        IntegrationHttpMethod: ANY
+        Uri: http://aa7b2f337f86d4a178733171e42972cf-1841160873.us-east-1.elb.amazonaws.com/api/v1/clients/sign-up
         RequestTemplates:
           application/json: '{"statusCode": 200}'
         IntegrationResponses:
@@ -87,15 +105,21 @@ Resources:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       RestApiId: !Ref RestApiGateway
-      ResourceId: !Ref ProviderAPIResource
+      ResourceId: !Ref ProviderProxyAPIResource
       HttpMethod: ANY
       AuthorizationType: NONE
+      RequestParameters:
+        method.request.path.proxy: true
       Integration:
-        Type: MOCK
+        Type: HTTP_PROXY
+        IntegrationHttpMethod: ANY
+        Uri: http://aa7b2f337f86d4a178733171e42972cf-1841160873.us-east-1.elb.amazonaws.com/{proxy}
         RequestTemplates:
           application/json: '{"statusCode": 200}'
         IntegrationResponses:
           - StatusCode: '200'
+        RequestParameters:
+          integration.request.path.proxy: method.request.path.proxy
         PassthroughBehavior: WHEN_NO_MATCH
       MethodResponses:
         - StatusCode: '200'
@@ -106,17 +130,23 @@ Resources:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       RestApiId: !Ref RestApiGateway
-      ResourceId: !Ref TotemAPIResource
+      ResourceId: !Ref TotemProxyAPIResource
       HttpMethod: ANY
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId:
         Ref: CognitoAuthorizer
+      RequestParameters:
+        method.request.path.proxy: true
       Integration:
-        Type: MOCK
+        Type: HTTP_PROXY
+        IntegrationHttpMethod: ANY
+        Uri: http://aa7b2f337f86d4a178733171e42972cf-1841160873.us-east-1.elb.amazonaws.com/{proxy}
         RequestTemplates:
           application/json: '{"statusCode": 200}'
         IntegrationResponses:
           - StatusCode: '200'
+        RequestParameters:
+          integration.request.path.proxy: method.request.path.proxy
         PassthroughBehavior: WHEN_NO_MATCH
       MethodResponses:
         - StatusCode: '200'
