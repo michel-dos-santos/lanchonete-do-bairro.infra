@@ -7,19 +7,40 @@ Resources:
     Properties:
       Name: lanchonete-do-bairro-api-gateway
 
-  SignUpAPIResource:
+  ClientsAPIResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt RestApiGateway.RootResourceId
       RestApiId: !Ref RestApiGateway
-      PathPart: 'sign-up'
+      PathPart: 'clients'
 
-  SignInAPIResource:
+  CategoriesAPIResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId: !GetAtt RestApiGateway.RootResourceId
       RestApiId: !Ref RestApiGateway
-      PathPart: 'sign-in'
+      PathPart: 'categories'
+
+  ProductsAPIResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt RestApiGateway.RootResourceId
+      RestApiId: !Ref RestApiGateway
+      PathPart: 'products'
+
+  OrdersAPIResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt RestApiGateway.RootResourceId
+      RestApiId: !Ref RestApiGateway
+      PathPart: 'orders'
+
+  ConsumerAPIResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt RestApiGateway.RootResourceId
+      RestApiId: !Ref RestApiGateway
+      PathPart: 'consumer'
 
   OthersAPIResource:
     Type: AWS::ApiGateway::Resource
@@ -38,11 +59,11 @@ Resources:
       ProviderARNs:
         - !ImportValue CognitoUserPoolARN
 
-  SignUpAPIResourceMockMethod:
+  ClientsAPIResourceMockMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       RestApiId: !Ref RestApiGateway
-      ResourceId: !Ref SignUpAPIResource
+      ResourceId: !Ref ClientsAPIResource
       HttpMethod: POST
       AuthorizationType: NONE
       Integration:
@@ -57,13 +78,80 @@ Resources:
           ResponseModels:
             application/json: Empty
 
-  SignInAPIResourceMockMethod:
+  CategoriesAPIResourceMockMethod:
     Type: 'AWS::ApiGateway::Method'
     Properties:
       RestApiId: !Ref RestApiGateway
-      ResourceId: !Ref SignInAPIResource
-      HttpMethod: POST
-      AuthorizationType: NONE
+      ResourceId: !Ref CategoriesAPIResource
+      HttpMethod: ANY
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Ref: CognitoAuthorizer
+      Integration:
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: '200'
+        PassthroughBehavior: WHEN_NO_MATCH
+      MethodResponses:
+        - StatusCode: '200'
+          ResponseModels:
+            application/json: Empty
+
+  ProductsAPIResourceMockMethod:
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ResourceId: !Ref ProductsAPIResource
+      HttpMethod: ANY
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Ref: CognitoAuthorizer
+      Integration:
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: '200'
+        PassthroughBehavior: WHEN_NO_MATCH
+      MethodResponses:
+        - StatusCode: '200'
+          ResponseModels:
+            application/json: Empty
+
+
+  OrdersAPIResourceMockMethod:
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ResourceId: !Ref OrdersAPIResource
+      HttpMethod: ANY
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Ref: CognitoAuthorizer
+      Integration:
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: '200'
+        PassthroughBehavior: WHEN_NO_MATCH
+      MethodResponses:
+        - StatusCode: '200'
+          ResponseModels:
+            application/json: Empty
+
+
+  ConsumerAPIResourceMockMethod:
+    Type: 'AWS::ApiGateway::Method'
+    Properties:
+      RestApiId: !Ref RestApiGateway
+      ResourceId: !Ref ConsumerAPIResource
+      HttpMethod: ANY
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Ref: CognitoAuthorizer
       Integration:
         Type: MOCK
         RequestTemplates:
@@ -100,8 +188,11 @@ Resources:
   Deployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn:
-      - SignUpAPIResourceMockMethod
-      - SignInAPIResourceMockMethod
+      - ClientsAPIResourceMockMethod
+      - CategoriesAPIResourceMockMethod
+      - ProductsAPIResourceMockMethod
+      - OrdersAPIResourceMockMethod
+      - ConsumerAPIResourceMockMethod
       - OthersAPIResourceMockMethod
     Properties:
       RestApiId: !Ref RestApiGateway
