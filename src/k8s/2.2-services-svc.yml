@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: services-svc-node-port
+  name: services-svc-load-balancer
   labels:
-    app: services-svc-node-port
+    app: services-svc-load-balancer
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: services-deployment
   ports:
     - name: n8n
       protocol: TCP
-      port: 5678
+      port: 80
       targetPort: 5678
       nodePort: 31678
