@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clientes-svc-load-balancer
+  labels:
+    app: clientes-svc-load-balancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: clientes-deployment
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8010
+      nodePort: 31010

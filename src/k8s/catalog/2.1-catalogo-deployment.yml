@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalogo-deployment
+  labels:
+    app: catalogo-deployment
+  annotations:
+    description: "Este pod contem o adapter rest da aplicacao, onde expoe as APIs da lanchonete do bairro"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalogo-deployment
+  template:
+    metadata:
+      labels:
+        app: catalogo-deployment
+    spec:
+      containers:
+        - name: adapter-rest-catalogo
+          image: micheldossantos/adapter-rest-catalogo:latest
+          ports:
+            - containerPort: 8011
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 0.5
+            limits:
+              cpu: 1
+          env:
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-catalogo
+                  key: DB_URL
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-catalogo
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-catalogo
+                  key: DB_PASSWORD
+          livenessProbe:
+            httpGet:
+              path: /api/actuator/health
+              port: 8011
+            initialDelaySeconds: 20
+            periodSeconds: 30
