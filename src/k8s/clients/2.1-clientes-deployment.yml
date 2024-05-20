@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clientes-deployment
+  labels:
+    app: clientes-deployment
+  annotations:
+    description: "Este pod contem o adapter rest da aplicacao, onde expoe as APIs da lanchonete do bairro"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clientes-deployment
+  template:
+    metadata:
+      labels:
+        app: clientes-deployment
+    spec:
+      containers:
+        - name: adapter-rest-clientes
+          image: micheldossantos/adapter-rest-clientes:latest
+          ports:
+            - containerPort: 8010
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 0.5
+            limits:
+              cpu: 1
+          env:
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-clientes
+                  key: DB_URL
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-clientes
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-clientes
+                  key: DB_PASSWORD
+            - name: AWS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-clientes
+                  key: AWS_ACCESS_KEY
+            - name: AWS_ACCESS_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-clientes
+                  key: AWS_ACCESS_SECRET
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-clientes
+                  key: AWS_REGION
+            - name: AWS_COGNITO_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-clientes
+                  key: AWS_COGNITO_CLIENT_ID
+            - name: AWS_COGNITO_USER_POOL_ID
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-clientes
+                  key: AWS_COGNITO_USER_POOL_ID
+          livenessProbe:
+            httpGet:
+              path: /api/actuator/health
+              port: 8010
+            initialDelaySeconds: 20
+            periodSeconds: 30

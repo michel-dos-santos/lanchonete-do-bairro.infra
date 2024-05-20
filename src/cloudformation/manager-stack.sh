@@ -5,7 +5,8 @@ items=("Criar Stack" "Excluir Stack" "Criar VPC" "Excluir VPC" "Criar DB" "Exclu
 echo ">>>>> Obtendo definição dos atributos interno do script <<<<<"
 AWS_REGION=us-east-1
 VPC_STACK_NAME=lanchonete-do-bairro-vpc
-DB_STACK_NAME=lanchonete-do-bairro-postgresql-instance1
+DB_SQL_STACK_NAME=lanchonete-do-bairro-postgresql-instance1
+DB_NOSQL_STACK_NAME=lanchonete-do-bairro-mongodb
 COGNITO_STACK_NAME=lanchonete-do-bairro-cognito
 API_GATEWAY_STACK_NAME=lanchonete-do-bairro-api-gateway
 EKS_STACK_NAME=lanchonete-do-bairro-eks-cluster
@@ -58,10 +59,10 @@ function createVPC {
 function createDB {
   aws cloudformation create-stack \
     --region $AWS_REGION \
-    --stack-name $DB_STACK_NAME \
-    --template-body file://db-stack.yaml
+    --stack-name $DB_SQL_STACK_NAME \
+    --template-body file://db-sql-stack.yaml
 
-  verifyStatus $DB_STACK_NAME
+  verifyStatus $DB_SQL_STACK_NAME
   wait
 }
 
@@ -120,7 +121,7 @@ function deleteKubeCtlConfig {
 function createStacks {
   echo "Creating :" $VPC_STACK_NAME
   createVPC
-  echo "Creating :" $DB_STACK_NAME
+  echo "Creating :" $DB_SQL_STACK_NAME
   createDB
   echo "Creating :" $COGNITO_STACK_NAME
   createCOGNITO
@@ -132,8 +133,8 @@ function createStacks {
 }
 
 function deleteStacks {
-  echo "Deleting :" $DB_STACK_NAME
-  deleteStack $DB_STACK_NAME
+  echo "Deleting :" $DB_SQL_STACK_NAME
+  deleteStack $DB_SQL_STACK_NAME
   echo "Deleting :" $API_GATEWAY_STACK_NAME
   deleteStack $API_GATEWAY_STACK_NAME
   echo "Deleting :" $COGNITO_STACK_NAME
@@ -153,7 +154,7 @@ do
         3) createVPC;;
         4) deleteStack $VPC_STACK_NAME;;
         5) createDB;;
-        6) deleteStack $DB_STACK_NAME;;
+        6) deleteStack $DB_SQL_STACK_NAME;;
         7) createCOGNITO;;
         8) deleteStack $COGNITO_STACK_NAME;;
         9) createAPIGATEWAY;;

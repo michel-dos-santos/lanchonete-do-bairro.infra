@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pagamentos-deployment
+  labels:
+    app: pagamentos-deployment
+  annotations:
+    description: "Este pod contem o adapter rest da aplicacao, onde expoe as APIs da lanchonete do bairro"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pagamentos-deployment
+  template:
+    metadata:
+      labels:
+        app: pagamentos-deployment
+    spec:
+      containers:
+        - name: adapter-rest-pagamentos
+          image: micheldossantos/adapter-rest-pagamentos:latest
+          ports:
+            - containerPort: 8013
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 0.5
+            limits:
+              cpu: 1
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pagamentos
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pagamentos
+                  key: DB_PORT
+            - name: DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pagamentos
+                  key: DB_DATABASE
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pagamentos
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pagamentos
+                  key: DB_PASSWORD
+            - name: API_ORDERS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pagamentos
+                  key: API_ORDERS_URL
+          livenessProbe:
+            httpGet:
+              path: /api/actuator/health
+              port: 8013
+            initialDelaySeconds: 20
+            periodSeconds: 30

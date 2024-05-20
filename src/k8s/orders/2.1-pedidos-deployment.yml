@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pedidos-deployment
+  labels:
+    app: pedidos-deployment
+  annotations:
+    description: "Este pod contem o adapter rest da aplicacao, onde expoe as APIs da lanchonete do bairro"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pedidos-deployment
+  template:
+    metadata:
+      labels:
+        app: pedidos-deployment
+    spec:
+      containers:
+        - name: adapter-rest-pedidos
+          image: micheldossantos/adapter-rest-pedidos:latest
+          ports:
+            - containerPort: 8012
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 0.5
+            limits:
+              cpu: 1
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pedidos
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pedidos
+                  key: DB_PORT
+            - name: DB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pedidos
+                  key: DB_DATABASE
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pedidos
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pedidos
+                  key: DB_PASSWORD
+            - name: API_BILLING_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pedidos
+                  key: API_BILLING_URL
+            - name: API_CLIENTS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pedidos
+                  key: API_CLIENTS_URL
+            - name: API_PRODUCTS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: dynamic-secrets-pedidos
+                  key: API_PRODUCTS_URL
+          livenessProbe:
+            httpGet:
+              path: /api/actuator/health
+              port: 8012
+            initialDelaySeconds: 20
+            periodSeconds: 30
