@@ -41,7 +41,7 @@ Resources:
       DBName: !Ref DBName
       DBSubnetGroupName: !Ref RDSSubnetGroup
       Engine: postgres
-      EngineVersion: '15.2'
+      EngineVersion: '16.2'
       AllocatedStorage: 5
       PubliclyAccessible: 'true'
       DBInstanceClass: db.t3.small
