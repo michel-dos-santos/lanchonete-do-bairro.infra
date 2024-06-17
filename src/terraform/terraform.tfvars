@@ -1,0 +1,4 @@
+TF_VAR_AWS_ACCESS_KEY    = ""
+TF_VAR_AWS_SECRET_KEY    = ""
+TF_VAR_POSTGRES_USER     = "postgres"
+TF_VAR_POSTGRES_PASSWORD = "postgres"
