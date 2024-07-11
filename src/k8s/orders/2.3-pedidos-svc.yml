@@ -9,7 +9,8 @@ spec:
   selector:
     app: pedidos-deployment
   ports:
-    - port: 80
+    - name: api
+      port: 80
       protocol: TCP
       targetPort: 8012
       nodePort: 31012
