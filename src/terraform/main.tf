@@ -501,7 +501,7 @@ resource "aws_iam_role_policy_attachment" "example-AmazonEKSVPCResourceControlle
 
 # EKS CLUSTER #
 resource "aws_eks_cluster" "eks_cluster" {
-  name     = "eks_lanchonete_do_bairro"
+  name     = "lanchonete-do-bairro-eks-cluster"
   role_arn = aws_iam_role.eks_iam_role.arn
 
   vpc_config {
