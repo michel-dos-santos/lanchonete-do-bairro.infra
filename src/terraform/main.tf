@@ -3,6 +3,7 @@ provider "aws" {
   access_key = var.TF_VAR_AWS_ACCESS_KEY
   secret_key = var.TF_VAR_AWS_SECRET_KEY
 }
+
 # VPC #
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
@@ -467,4 +468,107 @@ resource "aws_api_gateway_stage" "stage" {
   deployment_id = aws_api_gateway_deployment.deployment.id
   rest_api_id   = aws_api_gateway_rest_api.rest_api.id
   stage_name    = "dev"
+}
+
+# EKS ROLES #
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["eks.amazonaws.com", "ec2.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role" "eks_iam_role" {
+  name               = "eks-cluster-role-lanchonete-do-bairro"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "example-AmazonEKSClusterPolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.eks_iam_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "example-AmazonEKSVPCResourceController" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
+  role       = aws_iam_role.eks_iam_role.name
+}
+
+# EKS CLUSTER #
+resource "aws_eks_cluster" "eks_cluster" {
+  name     = "eks_lanchonete_do_bairro"
+  role_arn = aws_iam_role.eks_iam_role.arn
+
+  vpc_config {
+    subnet_ids = module.vpc.public_subnets
+  }
+
+  access_config {
+    authentication_mode                         = "API_AND_CONFIG_MAP"
+    bootstrap_cluster_creator_admin_permissions = true
+  }
+}
+
+data "aws_eks_cluster_auth" "default" {
+  name = aws_eks_cluster.eks_cluster.name
+}
+
+resource "aws_eks_access_entry" "eks_lanchonete_do_bairro" {
+  cluster_name      = aws_eks_cluster.eks_cluster.name
+  principal_arn     = aws_iam_role.eks_iam_role.arn
+  kubernetes_groups = ["group-1", "group-2"]
+  type              = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "eks_access_policy_association" {
+  cluster_name  = aws_eks_cluster.eks_cluster.name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  principal_arn = aws_iam_role.eks_iam_role.arn
+
+  access_scope {
+    type       = "namespace"
+    namespaces = ["example-namespace"]
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "example-AmazonEKSWorkerNodePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.eks_iam_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "example-AmazonEKS_CNI_Policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.eks_iam_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "example-AmazonEC2ContainerRegistryReadOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.eks_iam_role.name
+}
+
+resource "aws_eks_node_group" "example" {
+  scaling_config {
+    desired_size = 1
+    max_size     = 2
+    min_size     = 1
+  }
+
+  lifecycle {
+    ignore_changes = [scaling_config[0].desired_size]
+  }
+  cluster_name    = aws_eks_cluster.eks_cluster.name
+  node_group_name = "node_group_name"
+  node_role_arn   = aws_iam_role.eks_iam_role.arn
+  subnet_ids = module.vpc.private_subnets
+}
+
+provider "kubernetes" {
+  host                   = aws_eks_cluster.eks_cluster.endpoint
+  cluster_ca_certificate = base64decode(aws_eks_cluster.eks_cluster.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.default.token
 }
